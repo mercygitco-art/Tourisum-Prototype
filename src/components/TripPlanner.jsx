@@ -80,18 +80,28 @@ function TripPlanner() {
 
   useEffect(() => {
     const selectDestination = (event) => {
-      const place = destinations.find(({ name }) => name === event.detail?.name)
-      if (!place) return
-      setSelectedDestination(place.name)
+      const { name, startDate, travelers } = event.detail ?? {}
+      const place = destinations.find(({ name: destinationName }) => destinationName === name)
+      const validDate = typeof startDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(startDate)
+      const validTravelers = ['1', '2', '3', '4', '5'].includes(String(travelers))
+      if (!place && !validDate && !validTravelers) return
+
+      setSelectedDestination(place?.name ?? '')
       setTrip((currentTrip) => ({
         ...currentTrip,
-        interest: place.category,
-        coast: place.route === 'east' ? 'East coast' : currentTrip.coast,
+        ...(place ? {
+          interest: place.category,
+          coast: place.route === 'east' ? 'East coast' : currentTrip.coast,
+        } : {}),
+        ...(validDate ? { startDate } : {}),
+        ...(validTravelers ? { travelers: String(travelers) } : {}),
       }))
       window.dispatchEvent(new Event('ceylon:clear-itinerary'))
       setSuggestion(null)
       setSaved(false)
-      setStatus(`${place.name} is selected as the first stop in your trip idea.`)
+      setStatus(place
+        ? `${place.name} is selected as the first stop in your trip idea.`
+        : 'Your travel date and party size are ready in the trip planner.')
     }
 
     window.addEventListener('ceylon:select-destination', selectDestination)

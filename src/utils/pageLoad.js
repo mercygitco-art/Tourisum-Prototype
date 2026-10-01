@@ -1,3 +1,3 @@
-export function shouldShowInitialLoader(readyState) {
-  return readyState !== 'complete'
+export function shouldShowWelcomeSequence() {
+  return true
 }

@@ -1,6 +1,6 @@
 import ArrowIcon from './ArrowIcon'
 
-function DestinationCard({ destination, isFavorite, onToggleFavorite }) {
+function DestinationCard({ destination, featured, isFavorite, onToggleFavorite }) {
   const updateTilt = (event) => {
     if (
       event.pointerType !== 'mouse'
@@ -26,7 +26,7 @@ function DestinationCard({ destination, isFavorite, onToggleFavorite }) {
 
   return (
     <div
-      className="destination-card"
+      className={featured ? 'destination-card destination-card--featured' : 'destination-card'}
       onPointerMove={updateTilt}
       onPointerLeave={resetTilt}
     >

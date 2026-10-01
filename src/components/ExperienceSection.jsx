@@ -1,29 +1,67 @@
 import ArrowIcon from './ArrowIcon'
 
+const chapters = [
+  {
+    number: '01',
+    category: 'THE HIGHLANDS',
+    title: <>Take the<br />long way.</>,
+    description: 'Follow tea trails through the clouds. Let the old train set the pace.',
+    image: '/images/ella.jpg',
+    alt: 'The railway viaduct winding through the green hills near Ella',
+    location: 'Ella · Hill Country',
+  },
+  {
+    number: '02',
+    category: 'THE WILD',
+    title: <>A little<br />closer to wild.</>,
+    description: 'Early light, quiet tracks, and the privilege of seeing wildlife on its terms.',
+    image: '/images/elephants.jpg',
+    alt: 'Sri Lankan elephants in their natural habitat',
+    location: 'Yala · Southern Province',
+  },
+  {
+    number: '03',
+    category: 'THE COAST',
+    title: <>Stay for<br />the last light.</>,
+    description: 'Trade the timetable for salt air, warm water, and one more sunset.',
+    image: '/images/mirissa.jpg',
+    alt: 'The warm southern coastline at Mirissa',
+    location: 'Mirissa · Southern Coast',
+  },
+]
+
 function ExperienceSection() {
   return (
-    <section className="experience" id="experiences">
-      <div
-        className="experience-image"
-        role="img"
-        aria-label="Tea fields in Sri Lanka's hill country"
-      />
-      <div className="experience-panel">
-        <p className="eyebrow eyebrow--light">Take the scenic route</p>
-        <h2>Let the journey<br />be the <em>destination.</em></h2>
-        <p>
-          Ride the train through emerald tea country. Take the long way to the
-          beach. Say yes to one more cup of tea. The best moments here are
-          rarely the ones you planned.
-        </p>
-        <a className="button button--outline" href="#plan">
-          Find your experience <ArrowIcon />
-        </a>
-        <span className="experience-coordinate">
-          HILL COUNTRY · 1,889 M ABOVE SEA LEVEL
-        </span>
+    <section className="experience-story" id="experiences" aria-labelledby="experience-title">
+      <div className="experience-stage">
+        <header className="experience-story-heading">
+          <p className="eyebrow">The island, in three chapters</p>
+          <h2 id="experience-title">Go where the day <em>takes you.</em></h2>
+        </header>
+        <div className="experience-track">
+          {chapters.map((chapter) => (
+            <article className="experience-chapter" key={chapter.number}>
+              <figure className="experience-chapter-image">
+                <img src={chapter.image} alt={chapter.alt} loading="lazy" />
+                <figcaption>{chapter.location}</figcaption>
+              </figure>
+              <div className="experience-chapter-copy">
+                <span className="experience-chapter-index">{chapter.number} / 03</span>
+                <p className="eyebrow">{chapter.category}</p>
+                <h3>{chapter.title}</h3>
+                <p className="experience-chapter-description">{chapter.description}</p>
+                <a className="text-link" href="#plan">
+                  Shape this journey <ArrowIcon />
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="experience-progress" aria-hidden="true">
+          <span />
+        </div>
+        <p className="experience-scroll-hint">Keep scrolling to wander <span>↓</span></p>
       </div>
-      <div className="experience-number" aria-hidden="true">02</div>
     </section>
   )
 }

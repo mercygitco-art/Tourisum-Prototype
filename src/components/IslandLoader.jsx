@@ -1,33 +1,110 @@
-function IslandLoader({ isExiting = false }) {
+import { useEffect, useRef, useState } from 'react'
+
+const nasaEarthVideo = 'https://svs.gsfc.nasa.gov/vis/a000000/a005500/a005570/Earth_wAtmos_spin_02_1080p60.mp4'
+const sriLankaFrameTime = 58
+
+function IslandLoader({ isExiting = false, onArrival }) {
+  const arrivalStarted = useRef(false)
+  const arrivalTimer = useRef(0)
+  const fallbackTimer = useRef(0)
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const [videoFailed, setVideoFailed] = useState(prefersReducedMotion)
+  const [locationLocked, setLocationLocked] = useState(prefersReducedMotion)
+
+  useEffect(() => {
+    if (prefersReducedMotion) return undefined
+    fallbackTimer.current = window.setTimeout(() => {
+      if (arrivalStarted.current) return
+      arrivalStarted.current = true
+      setVideoFailed(true)
+      setLocationLocked(true)
+      arrivalTimer.current = window.setTimeout(onArrival, 1500)
+    }, 18000)
+
+    return () => window.clearTimeout(fallbackTimer.current)
+  }, [onArrival, prefersReducedMotion])
+
+  useEffect(() => () => window.clearTimeout(arrivalTimer.current), [])
+
+  const settleOnSriLanka = () => {
+    if (arrivalStarted.current) return
+    arrivalStarted.current = true
+    setLocationLocked(true)
+    arrivalTimer.current = window.setTimeout(onArrival, 1500)
+  }
+
+  const handleVideoMetadata = (event) => {
+    const video = event.currentTarget
+    video.playbackRate = 8
+    video.play().catch(() => {
+      setVideoFailed(true)
+      settleOnSriLanka()
+    })
+  }
+
+  const handleVideoTimeUpdate = (event) => {
+    const video = event.currentTarget
+    if (video.currentTime >= 55 && video.currentTime < sriLankaFrameTime) {
+      video.playbackRate = 1.5
+    } else if (video.currentTime >= 48 && video.currentTime < 55) {
+      video.playbackRate = 4
+    }
+    if (video.currentTime < sriLankaFrameTime) return
+    video.pause()
+    video.currentTime = sriLankaFrameTime
+    settleOnSriLanka()
+  }
+
+  const handleVideoError = () => {
+    setVideoFailed(true)
+    settleOnSriLanka()
+  }
+
   return (
     <div
-      className={isExiting ? 'island-loader island-loader--exiting' : 'island-loader'}
+      className={[
+        'island-loader',
+        isExiting && 'island-loader--exiting',
+        videoFailed && 'island-loader--poster',
+        locationLocked && 'island-loader--location-locked',
+      ].filter(Boolean).join(' ')}
       role="status"
       aria-live="polite"
-      aria-label="Loading Ceylon"
+      aria-label="Arriving in Sri Lanka"
     >
-      <div className="island-loader-scene" aria-hidden="true">
-        <div className="island-loader-sun" />
-        <div className="island-loader-orbit island-loader-orbit--outer" />
-        <div className="island-loader-orbit island-loader-orbit--inner" />
-        <div className="island-loader-island">
-          <div className="island-loader-island-top">
-            <span className="island-loader-peak island-loader-peak--back" />
-            <span className="island-loader-peak island-loader-peak--front" />
-            <span className="island-loader-palm island-loader-palm--one" />
-            <span className="island-loader-palm island-loader-palm--two" />
-            <span className="island-loader-sea" />
-          </div>
-          <div className="island-loader-island-side" />
-          <div className="island-loader-island-shadow" />
+      <div className="loader-earth-frame" aria-hidden="true">
+        {!videoFailed && (
+          <video
+            className="loader-earth-video"
+            src={nasaEarthVideo}
+            poster="/images/nasa-earth-spin-poster.jpg"
+            autoPlay
+            muted
+            playsInline
+            preload="metadata"
+            onLoadedMetadata={handleVideoMetadata}
+            onTimeUpdate={handleVideoTimeUpdate}
+            onError={handleVideoError}
+          />
+        )}
+        {videoFailed && (
+          <img
+            className="loader-earth-poster"
+            src="/images/nasa-earth-spin-poster.jpg"
+            alt=""
+          />
+        )}
+        <span className="loader-location-lock">
+          <span className="loader-location-lock-ring" />
+          <span className="loader-location-lock-center" />
+        </span>
+        <div className="loader-location-copy">
+          <span className="loader-location-eyebrow">Target acquired · Earth</span>
+          <strong>Sri Lanka</strong>
+          <span>7.8731° N&nbsp; 80.7718° E</span>
         </div>
       </div>
-      <div className="island-loader-copy">
-        <p className="island-loader-eyebrow">A little island. A lot of wonder.</p>
-        <p className="island-loader-wordmark">CEYLON<span>.</span></p>
-        <p className="island-loader-message">Finding your way to somewhere wonderful</p>
-        <div className="island-loader-progress" aria-hidden="true"><span /></div>
-      </div>
+      <div className="loader-zoom-flash" aria-hidden="true" />
     </div>
   )
 }

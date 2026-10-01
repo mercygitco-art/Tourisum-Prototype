@@ -19,6 +19,10 @@ npm run build
 
 ## What works
 
+- The responsive homepage pairs an island-inspired hero trip finder with a light, editorial visual style, dimensional Sri Lanka-themed icons, and a curated destination gallery.
+- The featured experience section becomes a pinned horizontal story on larger screens and a natural vertical sequence on mobile or for reduced-motion users. The hero and destination photography use restrained parallax; destination cards use a subtle pointer tilt. Intro, destination, and trip-planner chapters enter with alternating 3D page-turns, a hinged light-catching sheet, and staggered content/photo reveals. Mobile uses a lighter vertical transition; all added motion respects reduced-motion preferences.
+- On each initial site entry, NASA's Earth-with-atmosphere footage plays forward to a frame centered on the Indian Ocean and Sri Lanka, locks the Sri Lanka coordinates, then zooms through that location into the site. There is no curtain overlay; the geographic zoom is the reveal. The sequence has a still-frame fallback and respects reduced-motion preferences.
+- The hero trip finder carries a selected destination, travel date, and traveler count into the trip planner.
 - Destination cards can be filtered by culture, highlands, coast, and wildlife.
 - Selecting a destination opens the trip planner with that place as the route starting point.
 - The planner builds an illustrative route based on available destinations, trip length, travel pace, and the selected coast.
@@ -32,4 +36,4 @@ The planner is a front-end prototype. It does not book travel, check live condit
 
 ## Image credits
 
-The destination photographs in `public/images` are bundled locally from Wikimedia Commons and Unsplash. Wikimedia author, source page, and license details are listed in the site footer. Images are presented under their respective licenses. The hero video and its poster are served locally; the video is used under the Pexels License.
+The destination photographs in `public/images` are bundled locally from Wikimedia Commons and Unsplash. Wikimedia author, source page, and license details are listed in the site footer. Images are presented under their respective licenses. The hero video and its poster are served locally; the video is used under the Pexels License. The Earth arrival uses [NASA Scientific Visualization Studio's Earth rotation](https://svs.gsfc.nasa.gov/5570/), visualized by Kel Elkins (USRA); the locally bundled still frame is from the same NASA sequence.

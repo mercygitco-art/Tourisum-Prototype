@@ -79,87 +79,103 @@ function Destinations() {
     <section className="destinations section-wrap" id="destinations">
       <div className="section-heading">
         <div>
-          <p className="eyebrow">The island, your way</p>
-          <h2>Places that <em>stay with you.</em></h2>
+          <p className="eyebrow">
+            Sri Lanka · {String(destinations.length).padStart(2, '0')} places to begin
+          </p>
+          <h2>One island.<br /><em>A thousand ways in.</em></h2>
+          <p className="destination-heading-note">
+            Trace a route from the old kingdoms to the tea hills and the edge of the sea.
+          </p>
         </div>
-        <a className="text-link" href="#plan">
-          View all destinations <ArrowIcon />
+        <a className="destination-map-link" href="#destination-map-panel">
+          <span className="destination-map-link-index">01 / 02</span>
+          <span>First, find your somewhere</span>
+          <ArrowIcon />
         </a>
       </div>
 
-      <div className="destination-toolbar">
-        <div className="destination-toolbar-main">
-          <div className="filter-list" role="group" aria-label="Filter destinations">
-            {filters.map((filter) => (
-              <button
-                className={activeFilter === filter ? 'filter-chip filter-chip--active' : 'filter-chip'}
-                type="button"
-                aria-pressed={activeFilter === filter}
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-
-          <div className="destination-controls">
-            <label className="destination-search" htmlFor="destination-search">
-              <span className="visually-hidden">Search destinations</span>
-              <input
-                id="destination-search"
-                type="search"
-                placeholder="Search places, regions, vibes"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-              />
-            </label>
-
-            <label className="destination-sort" htmlFor="destination-sort">
-              <span>Sort</span>
-              <select id="destination-sort" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
-                <option value="recommended">Recommended</option>
-                <option value="name">Name</option>
-                <option value="region">Region</option>
-                <option value="category">Category</option>
-              </select>
-            </label>
-          </div>
+      <div className="destination-toolbar" aria-label="Explore places">
+        <div className="filter-list" role="group" aria-label="Filter destinations">
+          {filters.map((filter) => (
+            <button
+              className={activeFilter === filter ? 'filter-chip filter-chip--active' : 'filter-chip'}
+              type="button"
+              aria-pressed={activeFilter === filter}
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+            >
+              {filter}
+            </button>
+          ))}
         </div>
 
         <div className="destination-toolbar-actions">
+          <details className="destination-refine">
+            <summary>Search &amp; sort <span aria-hidden="true">＋</span></summary>
+            <div className="destination-refine-panel">
+              <label className="destination-search" htmlFor="destination-search">
+                <span className="visually-hidden">Search destinations</span>
+                <input
+                  id="destination-search"
+                  type="search"
+                  placeholder="Search places, regions, vibes"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                />
+              </label>
+
+              <label className="destination-sort" htmlFor="destination-sort">
+                <span>Sort</span>
+                <select id="destination-sort" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+                  <option value="recommended">Recommended</option>
+                  <option value="name">Name</option>
+                  <option value="region">Region</option>
+                  <option value="category">Category</option>
+                </select>
+              </label>
+            </div>
+          </details>
           <button
-            className={showFavoritesOnly ? 'map-control map-control--active' : 'map-control'}
+            className={showFavoritesOnly ? 'destination-shortlist destination-shortlist--active' : 'destination-shortlist'}
             type="button"
+            aria-pressed={showFavoritesOnly}
             onClick={() => setShowFavoritesOnly((currentState) => !currentState)}
           >
-            {showFavoritesOnly ? 'Showing shortlist' : 'Shortlist only'}
+            <span aria-hidden="true">♡</span>
+            {showFavoritesOnly ? 'Shortlist' : 'Saved places'}
           </button>
-          {(activeFilter !== 'All' || searchQuery || showFavoritesOnly) && (
-            <button type="button" className="map-control" onClick={resetFilters}>
+          {(activeFilter !== 'All' || searchQuery || showFavoritesOnly || sortBy !== 'recommended') && (
+            <button type="button" className="destination-reset" onClick={resetFilters}>
               Reset
             </button>
           )}
           <span className="destination-count" aria-live="polite">
-            Showing {visibleDestinations.length} {visibleDestinations.length === 1 ? 'place' : 'places'}
+            {String(visibleDestinations.length).padStart(2, '0')} <span>places</span>
           </span>
         </div>
       </div>
 
-      <div className="destination-insights" aria-label="Trip planning insights">
-        <div className="destination-insight">
-          <span>Curated picks</span>
-          <strong>{visibleDestinations.length}</strong>
+      {visibleDestinations.length === 0 ? (
+        <div className="destination-empty" role="status">
+          <h3>No places match that search yet.</h3>
+          <p>Try a different keyword or reset the filters to explore the whole island again.</p>
+          <button type="button" className="map-control" onClick={resetFilters}>
+            Clear filters
+          </button>
         </div>
-        <div className="destination-insight">
-          <span>Shortlist</span>
-          <strong>{favorites.length}</strong>
+      ) : (
+        <div className="destination-grid">
+          {visibleDestinations.map((destination, index) => (
+            <DestinationCard
+              destination={destination}
+              featured={index === 0}
+              key={destination.name}
+              isFavorite={favorites.includes(destination.name)}
+              onToggleFavorite={toggleFavorite}
+            />
+          ))}
         </div>
-        <div className="destination-insight">
-          <span>Filter</span>
-          <strong>{activeFilter === 'All' ? 'All' : activeFilter}</strong>
-        </div>
-      </div>
+      )}
 
       <div className="destination-map-panel" id="destination-map-panel">
         <div className="destination-map-heading">
@@ -184,26 +200,6 @@ function Destinations() {
         </p>
       </div>
 
-      {visibleDestinations.length === 0 ? (
-        <div className="destination-empty" role="status">
-          <h3>No places match that search yet.</h3>
-          <p>Try a different keyword or reset the filters to explore the whole island again.</p>
-          <button type="button" className="map-control" onClick={resetFilters}>
-            Clear filters
-          </button>
-        </div>
-      ) : (
-        <div className="destination-grid">
-          {visibleDestinations.map((destination) => (
-            <DestinationCard
-              destination={destination}
-              key={destination.name}
-              isFavorite={favorites.includes(destination.name)}
-              onToggleFavorite={toggleFavorite}
-            />
-          ))}
-        </div>
-      )}
     </section>
   )
 }

@@ -28,10 +28,10 @@ function Header() {
       >
         <a href="#destinations" onClick={closeMenu}>Destinations</a>
         <a href="#experiences" onClick={closeMenu}>Experiences</a>
-        <a href="#story" onClick={closeMenu}>Our island</a>
+        <a href="#story" onClick={closeMenu}>Our story</a>
       </nav>
       <a className="header-cta" href="#plan">
-        Plan your trip <ArrowIcon diagonal />
+        Plan your tour <ArrowIcon diagonal />
       </a>
     </header>
   )
