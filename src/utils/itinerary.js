@@ -19,6 +19,7 @@ export const defaultTrip = {
   coast: 'South coast',
 }
 
+// Select a route, limit its stops according to trip length and pace, then distribute days.
 export function buildItinerary(trip, selectedDestination = '') {
   const selectedPlace = destinations.find(({ name }) => name === selectedDestination)
   let stops
@@ -60,6 +61,7 @@ export function buildItinerary(trip, selectedDestination = '') {
 }
 
 export function formatItinerary(plan) {
+  // Convert the visual plan into a portable text document with an explicit disclaimer.
   const lines = [
     'CEYLON — A SRI LANKA TRIP IDEA',
     `${plan.days}-day trip for ${plan.travelers} ${plan.travelers === 1 ? 'traveler' : 'travelers'}`,
@@ -80,6 +82,7 @@ export function formatItinerary(plan) {
 }
 
 export function formatTripDate(value) {
+  // Format date-only input at midday to avoid timezone-related day shifts.
   if (!value) return 'Dates to be decided'
   return new Intl.DateTimeFormat('en', {
     day: 'numeric',
@@ -89,6 +92,7 @@ export function formatTripDate(value) {
 }
 
 export function isValidSavedPlan(value) {
+  // Validate persisted data before using it to restore planner state.
   return Boolean(
     value
     && value.version === 1

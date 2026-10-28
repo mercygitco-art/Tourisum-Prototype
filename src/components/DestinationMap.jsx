@@ -5,6 +5,7 @@ import allDestinations from '../data/destinations'
 
 const mapCenter = [7.8731, 80.7718]
 
+// Start the planner from a map popup without coupling the map to planner state.
 function selectDestination(name) {
   window.dispatchEvent(new CustomEvent('ceylon:select-destination', {
     detail: { name },
@@ -12,6 +13,7 @@ function selectDestination(name) {
 }
 
 function DestinationMap({ destinations }) {
+  // Keep Leaflet objects in refs because they are managed outside React's render cycle.
   const mapElement = useRef(null)
   const map = useRef(null)
   const markers = useRef(null)
@@ -21,6 +23,7 @@ function DestinationMap({ destinations }) {
   const [mapStatus, setMapStatus] = useState('')
 
   useEffect(() => {
+    // Create the base map and its independent layers once, then clean them up on unmount.
     if (!mapElement.current) return undefined
 
     const instance = L.map(mapElement.current, {
@@ -48,6 +51,7 @@ function DestinationMap({ destinations }) {
   }, [])
 
   useEffect(() => {
+    // Listen for planner commands that show or clear the suggested route.
     const showItinerary = (event) => {
       const names = event.detail?.names
       if (!Array.isArray(names)) return
@@ -74,6 +78,7 @@ function DestinationMap({ destinations }) {
   }, [])
 
   useEffect(() => {
+    // Rebuild visible destination markers whenever filtering changes the supplied places.
     const mapMarkers = markers.current
     const instance = map.current
     if (!mapMarkers || !instance) return
@@ -123,6 +128,7 @@ function DestinationMap({ destinations }) {
   }, [destinations])
 
   useEffect(() => {
+    // Draw numbered itinerary stops and a schematic connector over the base markers.
     const instance = map.current
     const layer = itineraryLayer.current
     if (!instance || !layer) return
@@ -169,6 +175,7 @@ function DestinationMap({ destinations }) {
   }, [routeNames])
 
   const showMyLocation = () => {
+    // Request location only after an explicit user action; the coordinates are not persisted.
     if (!navigator.geolocation) {
       setMapStatus('Location is not available in this browser.')
       return
@@ -213,6 +220,7 @@ function DestinationMap({ destinations }) {
   }
 
   const clearItinerary = () => {
+    // Use the same event as the planner so every map state is cleared consistently.
     window.dispatchEvent(new Event('ceylon:clear-itinerary'))
   }
 

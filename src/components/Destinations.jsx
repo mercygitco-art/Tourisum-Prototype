@@ -7,11 +7,13 @@ import DestinationMap from './DestinationMap'
 const favoriteStorageKey = 'ceylon-favorite-destinations-v1'
 
 function Destinations() {
+  // Store the current browsing controls independently so each filter can be changed freely.
   const [activeFilter, setActiveFilter] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState('recommended')
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
   const [favorites, setFavorites] = useState(() => {
+    // Restore only destination names that still exist in the bundled catalog.
     try {
       const stored = localStorage.getItem(favoriteStorageKey)
       const parsed = stored ? JSON.parse(stored) : []
@@ -23,6 +25,7 @@ function Destinations() {
   })
 
   useEffect(() => {
+    // Persist shortlist changes locally without making storage a requirement for browsing.
     try {
       localStorage.setItem(favoriteStorageKey, JSON.stringify(favorites))
     } catch {
@@ -32,6 +35,7 @@ function Destinations() {
 
   const filters = ['All', ...new Set(destinations.map(({ category }) => category))]
 
+  // Filter first, then sort the resulting destinations according to the selected controls.
   const visibleDestinations = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
 
@@ -61,6 +65,7 @@ function Destinations() {
   }, [activeFilter, favorites, searchQuery, showFavoritesOnly, sortBy])
 
   const toggleFavorite = (name) => {
+    // Toggle the selected place while preserving the order of existing favorites.
     setFavorites((currentFavorites) => (
       currentFavorites.includes(name)
         ? currentFavorites.filter((favorite) => favorite !== name)
@@ -69,6 +74,7 @@ function Destinations() {
   }
 
   const resetFilters = () => {
+    // Return the discovery controls to their initial state.
     setActiveFilter('All')
     setSearchQuery('')
     setSortBy('recommended')
@@ -95,6 +101,7 @@ function Destinations() {
       </div>
 
       <div className="destination-toolbar" aria-label="Explore places">
+        {/* Filter chips and secondary search controls drive the destination catalog. */}
         <div className="filter-list" role="group" aria-label="Filter destinations">
           {filters.map((filter) => (
             <button

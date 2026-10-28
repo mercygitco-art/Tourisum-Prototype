@@ -21,6 +21,7 @@ const interestOptions = [
 const savedPlanKey = 'ceylon-saved-trip-v1'
 
 function readSavedPlan() {
+  // Restore a saved plan only after validating its shape and destination names.
   try {
     const saved = localStorage.getItem(savedPlanKey)
     if (!saved) return { plan: null, message: '' }
@@ -57,6 +58,7 @@ function readSavedPlan() {
 }
 
 function todayAsInputValue() {
+  // Produce a local date suitable for a native date input's minimum value.
   const now = new Date()
   const offset = now.getTimezoneOffset()
   return new Date(now.getTime() - offset * 60_000).toISOString().slice(0, 10)
@@ -68,6 +70,7 @@ function formatDate(value) {
 }
 
 function TripPlanner() {
+  // Keep the editable trip, generated suggestion, and saved-plan state separate.
   const [restored] = useState(readSavedPlan)
   const [trip, setTrip] = useState(restored.plan?.trip ?? defaultTrip)
   const [suggestion, setSuggestion] = useState(restored.plan?.suggestion ?? null)
@@ -79,6 +82,7 @@ function TripPlanner() {
   const [status, setStatus] = useState(restored.message)
 
   useEffect(() => {
+    // Accept selections from the hero, destination cards, and map popups.
     const selectDestination = (event) => {
       const { name, startDate, travelers } = event.detail ?? {}
       const place = destinations.find(({ name: destinationName }) => destinationName === name)
@@ -109,6 +113,7 @@ function TripPlanner() {
   }, [])
 
   const updateTrip = (event) => {
+    // Update one planner field and invalidate the previous generated suggestion.
     const { name, value } = event.target
     setTrip((currentTrip) => ({ ...currentTrip, [name]: value }))
     window.dispatchEvent(new Event('ceylon:clear-itinerary'))
@@ -123,6 +128,7 @@ function TripPlanner() {
   }
 
   const createItinerary = (event) => {
+    // Validate the date, build a route, and expose the generated plan to the UI.
     event.preventDefault()
     if (trip.startDate && trip.startDate < todayAsInputValue()) {
       setStatus('Choose a start date today or later, or leave the date open.')
@@ -153,6 +159,7 @@ function TripPlanner() {
   }
 
   const showItineraryOnMap = () => {
+    // Ask the map to display the generated stops and bring that panel into view.
     if (!suggestion) return
     window.dispatchEvent(new CustomEvent('ceylon:show-itinerary', {
       detail: { names: suggestion.stops.map(({ name }) => name) },
@@ -165,6 +172,7 @@ function TripPlanner() {
   }
 
   const savePlan = () => {
+    // Save the current plan in this browser without sending it to a server.
     if (!suggestion) return
     try {
       localStorage.setItem(savedPlanKey, JSON.stringify({
@@ -181,6 +189,7 @@ function TripPlanner() {
   }
 
   const downloadPlan = () => {
+    // Create a local text file so the visitor can keep the plan outside the site.
     if (!suggestion) return
     const file = new Blob([formatItinerary(suggestion)], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(file)
@@ -195,6 +204,7 @@ function TripPlanner() {
   }
 
   const copyPlan = async () => {
+    // Use the browser clipboard when available and report permission failures clearly.
     if (!suggestion) return
     try {
       await navigator.clipboard.writeText(formatItinerary(suggestion))
@@ -205,6 +215,7 @@ function TripPlanner() {
   }
 
   const clearSavedPlan = () => {
+    // Remove only this application's saved plan from browser storage.
     try {
       localStorage.removeItem(savedPlanKey)
       setSaved(false)
@@ -231,6 +242,7 @@ function TripPlanner() {
       </div>
 
       <form className="planner-form" onSubmit={createItinerary}>
+        {/* Controlled fields keep the generated itinerary synchronized with user choices. */}
         <div className="planner-form-heading">
           <span className="eyebrow">01 — Shape your journey</span>
           <span className="planner-step">A good place to begin</span>
@@ -305,6 +317,7 @@ function TripPlanner() {
         </div>
 
         {suggestion && (
+          /* The result area appears only after a valid route has been generated. */
           <div className="itinerary-result" aria-label="Suggested itinerary">
             <div className="itinerary-heading">
               <span className="eyebrow">A first sketch of your trip</span>

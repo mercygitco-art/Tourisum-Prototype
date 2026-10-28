@@ -1,6 +1,7 @@
 import ArrowIcon from './ArrowIcon'
 
 const chapters = [
+  // These chapters provide the editorial story sequence shown in the experience section.
   {
     number: '01',
     category: 'THE HIGHLANDS',
@@ -39,6 +40,7 @@ function ExperienceSection() {
           <h2 id="experience-title">Go where the day <em>takes you.</em></h2>
         </header>
         <div className="experience-track">
+          {/* Each chapter combines one image, a location, and a route-planning prompt. */}
           {chapters.map((chapter) => (
             <article className="experience-chapter" key={chapter.number}>
               <figure className="experience-chapter-image">

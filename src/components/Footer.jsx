@@ -3,6 +3,7 @@ import destinations from '../data/destinations'
 function Footer() {
   return (
     <footer className="site-footer">
+      {/* Footer content includes the brand, supporting statement, and required media credits. */}
       <a className="wordmark wordmark--footer" href="#home">
         CEYLON<span>.</span>
       </a>

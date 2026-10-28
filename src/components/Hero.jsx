@@ -7,11 +7,13 @@ const HERO_POSTER =
 const HERO_VIDEO = '/sri-lanka-hero.mp4'
 
 function Hero({ isActive = true }) {
+  // Keep media references available for playback control and interactive hero state.
   const videoRef = useRef(null)
   const heroRef = useRef(null)
   const [videoFailed, setVideoFailed] = useState(false)
   const [searchMessage, setSearchMessage] = useState('')
 
+  // Prevent selecting a travel date earlier than today in the hero form.
   const [earliestDate] = useState(() => {
     const today = new Date()
     today.setMinutes(today.getMinutes() - today.getTimezoneOffset())
@@ -19,6 +21,7 @@ function Hero({ isActive = true }) {
   })
 
   const startPlanning = (event) => {
+    // Pass the hero form choices to the planner through the shared browser event.
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     const destination = formData.get('destination')
@@ -35,6 +38,7 @@ function Hero({ isActive = true }) {
   }
 
   useEffect(() => {
+    // Pause decorative video when hidden, inactive, or unnecessary for reduced motion.
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     let isInView = true
     const syncVideoMotion = () => {
@@ -65,6 +69,7 @@ function Hero({ isActive = true }) {
     }
   }, [isActive])
 
+  // Add a small mouse tilt effect while leaving touch and reduced-motion users unaffected.
   const updateTilt = (event) => {
     if (
       event.pointerType !== 'mouse'
@@ -134,6 +139,7 @@ function Hero({ isActive = true }) {
         <span className="stamp-bottom">A JOURNEY TO REMEMBER</span>
       </div>
       <form className="hero-search" onSubmit={startPlanning}>
+        {/* This compact form is the fastest path from discovery to trip planning. */}
         <label className="hero-search-field">
           <span>Where to?</span>
           <select name="destination" defaultValue="">

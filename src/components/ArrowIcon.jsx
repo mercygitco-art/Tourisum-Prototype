@@ -1,4 +1,5 @@
 function ArrowIcon({ diagonal = false }) {
+  // Reusable decorative arrow that can point inline or diagonally on destination links.
   return (
     <svg
       aria-hidden="true"

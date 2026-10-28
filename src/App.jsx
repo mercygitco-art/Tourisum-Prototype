@@ -11,6 +11,7 @@ import { shouldShowWelcomeSequence } from './utils/pageLoad'
 import './App.css'
 
 function App() {
+  // Keep the cinematic entry sequence separate from the page so it can animate out cleanly.
   const [loaderState, setLoaderState] = useState(() => (
     shouldShowWelcomeSequence() ? 'loading' : 'hidden'
   ))
@@ -18,6 +19,7 @@ function App() {
   const [welcomeComplete, setWelcomeComplete] = useState(false)
   const isLoading = loaderState !== 'hidden'
 
+  // Wait for the browser to finish loading, but do not block the page indefinitely.
   useEffect(() => {
     if (pageReady) return undefined
     if (document.readyState === 'complete') {
@@ -41,12 +43,14 @@ function App() {
     return () => window.clearTimeout(introTimer)
   }, [])
 
+  // Let the arrival animation finish before beginning the loader exit transition.
   useEffect(() => {
     if (!isLoading || !pageReady || !welcomeComplete) return
     const exitTimer = window.setTimeout(() => setLoaderState('exiting'), 0)
     return () => window.clearTimeout(exitTimer)
   }, [isLoading, pageReady, welcomeComplete])
 
+  // Move from the exit animation to the normal interactive page state.
   useEffect(() => {
     if (loaderState !== 'exiting') return undefined
     const exitDuration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 250 : 1500
@@ -54,6 +58,7 @@ function App() {
     return () => window.clearTimeout(exitTimer)
   }, [loaderState])
 
+  // Register scroll, reveal, parallax, and reduced-motion behavior for page sections.
   useEffect(() => {
     const revealTargets = [...document.querySelectorAll([
       'main > section:not(.hero)',
@@ -207,6 +212,7 @@ function App() {
 
   return (
     <>
+      {/* Keep the loader mounted while it enters or exits so its transition can complete. */}
       {loaderState !== 'hidden' && (
         <IslandLoader
           isExiting={loaderState === 'exiting'}
@@ -218,6 +224,7 @@ function App() {
         inert={isLoading}
         aria-hidden={isLoading}
       >
+        {/* The shell is inert while the arrival sequence is active. */}
         <a className="skip-link" href="#main-content">Skip to main content</a>
         <Header />
         <main id="main-content">

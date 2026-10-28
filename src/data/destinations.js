@@ -1,3 +1,4 @@
+// Static destination content drives cards, filters, map markers, credits, and itinerary routes.
 const destinations = [
   {
     name: 'Sigiriya',

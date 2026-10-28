@@ -3,6 +3,7 @@ import ArrowIcon from './ArrowIcon'
 function IslandIntro() {
   return (
     <section className="intro section-wrap" id="story">
+      {/* Introduce the destination through a short story and three value highlights. */}
       <div className="intro-label">
         <span className="eyebrow">Ayubowan — may you live long</span>
         <span className="vertical-rule" />

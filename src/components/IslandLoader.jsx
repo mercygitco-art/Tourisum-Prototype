@@ -4,6 +4,7 @@ const nasaEarthVideo = 'https://svs.gsfc.nasa.gov/vis/a000000/a005500/a005570/Ea
 const sriLankaFrameTime = 58
 
 function IslandLoader({ isExiting = false, onArrival }) {
+  // Track one-time arrival completion and timers so fallback paths cannot fire twice.
   const arrivalStarted = useRef(false)
   const arrivalTimer = useRef(0)
   const fallbackTimer = useRef(0)
@@ -11,6 +12,7 @@ function IslandLoader({ isExiting = false, onArrival }) {
   const [videoFailed, setVideoFailed] = useState(prefersReducedMotion)
   const [locationLocked, setLocationLocked] = useState(prefersReducedMotion)
 
+  // Use a poster fallback if the remote NASA arrival video does not start in time.
   useEffect(() => {
     if (prefersReducedMotion) return undefined
     fallbackTimer.current = window.setTimeout(() => {
@@ -27,6 +29,7 @@ function IslandLoader({ isExiting = false, onArrival }) {
   useEffect(() => () => window.clearTimeout(arrivalTimer.current), [])
 
   const settleOnSriLanka = () => {
+    // Freeze the arrival at Sri Lanka and notify the page when the reveal can finish.
     if (arrivalStarted.current) return
     arrivalStarted.current = true
     setLocationLocked(true)
@@ -34,6 +37,7 @@ function IslandLoader({ isExiting = false, onArrival }) {
   }
 
   const handleVideoMetadata = (event) => {
+    // Accelerate the remote video while retaining a slower final approach.
     const video = event.currentTarget
     video.playbackRate = 8
     video.play().catch(() => {
@@ -43,6 +47,7 @@ function IslandLoader({ isExiting = false, onArrival }) {
   }
 
   const handleVideoTimeUpdate = (event) => {
+    // Pause on the frame where the geographic focus reaches Sri Lanka.
     const video = event.currentTarget
     if (video.currentTime >= 55 && video.currentTime < sriLankaFrameTime) {
       video.playbackRate = 1.5
@@ -56,6 +61,7 @@ function IslandLoader({ isExiting = false, onArrival }) {
   }
 
   const handleVideoError = () => {
+    // Treat media failure as a visual fallback rather than blocking the site.
     setVideoFailed(true)
     settleOnSriLanka()
   }

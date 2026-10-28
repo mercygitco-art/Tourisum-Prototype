@@ -1,6 +1,7 @@
 import ArrowIcon from './ArrowIcon'
 
 function DestinationCard({ destination, featured, isFavorite, onToggleFavorite }) {
+  // Apply pointer tilt only for mouse users; touch devices keep the card stable.
   const updateTilt = (event) => {
     if (
       event.pointerType !== 'mouse'
@@ -19,6 +20,7 @@ function DestinationCard({ destination, featured, isFavorite, onToggleFavorite }
   }
 
   const onFavoriteClick = (event) => {
+    // Prevent the favorite control from also activating the card's destination link.
     event.preventDefault()
     event.stopPropagation()
     onToggleFavorite?.(destination.name)
@@ -37,6 +39,7 @@ function DestinationCard({ destination, featured, isFavorite, onToggleFavorite }
         aria-pressed={Boolean(isFavorite)}
         onClick={onFavoriteClick}
       >
+        {/* The pressed state communicates whether this destination is shortlisted. */}
         {isFavorite ? '♥' : '♡'}
       </button>
       <a
