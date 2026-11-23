@@ -7,6 +7,11 @@ import {
   formatItinerary,
   isValidSavedPlan,
 } from '../src/utils/itinerary.js'
+import {
+  calculateCardTilt,
+  dispatchDestinationSelection,
+  shouldEnableCardTilt,
+} from '../src/utils/destinationCard.js'
 
 function trip(overrides = {}) {
   return { ...defaultTrip, ...overrides }
@@ -93,4 +98,43 @@ test('exports a route with an explicit planning disclaimer', () => {
 
   assert.match(text, /Sigiriya/)
   assert.match(text, /not a transport itinerary or booking/)
+})
+
+test('calculates centered card tilt from pointer position', () => {
+  const bounds = { left: 100, top: 50, width: 200, height: 100 }
+
+  assert.deepEqual(calculateCardTilt({
+    clientX: 200,
+    clientY: 100,
+    bounds,
+  }), { rotateX: 0, rotateY: 0 })
+
+  assert.deepEqual(calculateCardTilt({
+    clientX: 300,
+    clientY: 150,
+    bounds,
+  }), { rotateX: -3.5, rotateY: 3.5 })
+})
+
+test('disables card tilt for touch and reduced-motion settings', () => {
+  const reducedMotion = () => ({ matches: true })
+  const regularMotion = () => ({ matches: false })
+
+  assert.equal(shouldEnableCardTilt('touch', regularMotion), false)
+  assert.equal(shouldEnableCardTilt('mouse', reducedMotion), false)
+  assert.equal(shouldEnableCardTilt('mouse', regularMotion), true)
+})
+
+test('dispatches destination selection without requiring a browser event constructor', () => {
+  const dispatched = []
+  const target = {
+    dispatchEvent(event) {
+      dispatched.push(event)
+    },
+  }
+
+  dispatchDestinationSelection(target, 'Sigiriya')
+
+  assert.equal(dispatched.length, 1)
+  assert.equal(dispatched[0].detail.name, 'Sigiriya')
 })

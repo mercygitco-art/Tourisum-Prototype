@@ -1,23 +1,27 @@
+import { useState } from 'react'
 import ArrowIcon from './ArrowIcon'
+import {
+  calculateCardTilt,
+  dispatchDestinationSelection,
+  shouldEnableCardTilt,
+} from '../utils/destinationCard'
 
 function DestinationCard({ destination, featured, isFavorite, onToggleFavorite }) {
-  // Apply pointer tilt only for mouse users; touch devices keep the card stable.
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 })
+
   const updateTilt = (event) => {
-    if (
-      event.pointerType !== 'mouse'
-      || window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ) return
+    const matchMedia = typeof window !== 'undefined' ? window.matchMedia : undefined
+    if (!shouldEnableCardTilt(event.pointerType, matchMedia)) return
+
     const bounds = event.currentTarget.getBoundingClientRect()
-    const x = (event.clientX - bounds.left) / bounds.width - 0.5
-    const y = (event.clientY - bounds.top) / bounds.height - 0.5
-    event.currentTarget.style.setProperty('--card-rotate-x', `${y * -7}deg`)
-    event.currentTarget.style.setProperty('--card-rotate-y', `${x * 7}deg`)
+    setTilt(calculateCardTilt({
+      clientX: event.clientX,
+      clientY: event.clientY,
+      bounds,
+    }))
   }
 
-  const resetTilt = (event) => {
-    event.currentTarget.style.setProperty('--card-rotate-x', '0deg')
-    event.currentTarget.style.setProperty('--card-rotate-y', '0deg')
-  }
+  const resetTilt = () => setTilt({ rotateX: 0, rotateY: 0 })
 
   const onFavoriteClick = (event) => {
     // Prevent the favorite control from also activating the card's destination link.
@@ -31,6 +35,10 @@ function DestinationCard({ destination, featured, isFavorite, onToggleFavorite }
       className={featured ? 'destination-card destination-card--featured' : 'destination-card'}
       onPointerMove={updateTilt}
       onPointerLeave={resetTilt}
+      style={{
+        '--card-rotate-x': `${tilt.rotateX}deg`,
+        '--card-rotate-y': `${tilt.rotateY}deg`,
+      }}
     >
       <button
         type="button"
@@ -45,9 +53,7 @@ function DestinationCard({ destination, featured, isFavorite, onToggleFavorite }
       <a
         className="destination-card-link"
         href="#plan"
-        onClick={() => window.dispatchEvent(new CustomEvent('ceylon:select-destination', {
-          detail: { name: destination.name },
-        }))}
+        onClick={() => dispatchDestinationSelection(window, destination.name)}
       >
         <img
           src={destination.image}
