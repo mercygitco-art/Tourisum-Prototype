@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ArrowIcon from './ArrowIcon'
 import {
   calculateCardTilt,
@@ -8,20 +8,44 @@ import {
 
 function DestinationCard({ destination, featured, isFavorite, onToggleFavorite }) {
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 })
+  const pendingTilt = useRef({ rotateX: 0, rotateY: 0 })
+  const tiltFrame = useRef(null)
+
+  useEffect(() => () => {
+    if (tiltFrame.current !== null) {
+      window.cancelAnimationFrame(tiltFrame.current)
+    }
+  }, [])
 
   const updateTilt = (event) => {
-    const matchMedia = typeof window !== 'undefined' ? window.matchMedia : undefined
+    const matchMedia = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      ? (query) => window.matchMedia(query)
+      : undefined
     if (!shouldEnableCardTilt(event.pointerType, matchMedia)) return
 
     const bounds = event.currentTarget.getBoundingClientRect()
-    setTilt(calculateCardTilt({
+    pendingTilt.current = calculateCardTilt({
       clientX: event.clientX,
       clientY: event.clientY,
       bounds,
-    }))
+    })
+
+    if (tiltFrame.current === null) {
+      tiltFrame.current = window.requestAnimationFrame(() => {
+        tiltFrame.current = null
+        setTilt(pendingTilt.current)
+      })
+    }
   }
 
-  const resetTilt = () => setTilt({ rotateX: 0, rotateY: 0 })
+  const resetTilt = () => {
+    if (tiltFrame.current !== null) {
+      window.cancelAnimationFrame(tiltFrame.current)
+      tiltFrame.current = null
+    }
+    pendingTilt.current = { rotateX: 0, rotateY: 0 }
+    setTilt(pendingTilt.current)
+  }
 
   const onFavoriteClick = (event) => {
     // Prevent the favorite control from also activating the card's destination link.

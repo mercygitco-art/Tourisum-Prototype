@@ -127,7 +127,14 @@ test('disables card tilt for touch and reduced-motion settings', () => {
 
 test('dispatches destination selection without requiring a browser event constructor', () => {
   const dispatched = []
+  class TestCustomEvent {
+    constructor(type, options) {
+      this.type = type
+      this.detail = options.detail
+    }
+  }
   const target = {
+    CustomEvent: TestCustomEvent,
     dispatchEvent(event) {
       dispatched.push(event)
     },
@@ -136,5 +143,33 @@ test('dispatches destination selection without requiring a browser event constru
   dispatchDestinationSelection(target, 'Sigiriya')
 
   assert.equal(dispatched.length, 1)
+  assert.ok(dispatched[0] instanceof TestCustomEvent)
+  assert.equal(dispatched[0].type, 'ceylon:select-destination')
   assert.equal(dispatched[0].detail.name, 'Sigiriya')
+})
+
+test('uses the legacy DOM custom-event factory when CustomEvent is unavailable', () => {
+  const dispatched = []
+  let eventType
+  const target = {
+    document: {
+      createEvent(type) {
+        eventType = type
+        return {
+          initCustomEvent(name, bubbles, cancelable, detail) {
+            Object.assign(this, { type: name, bubbles, cancelable, detail })
+          },
+        }
+      },
+    },
+    dispatchEvent(event) {
+      dispatched.push(event)
+    },
+  }
+
+  dispatchDestinationSelection(target, 'Ella')
+
+  assert.equal(eventType, 'CustomEvent')
+  assert.equal(dispatched[0].type, 'ceylon:select-destination')
+  assert.equal(dispatched[0].detail.name, 'Ella')
 })

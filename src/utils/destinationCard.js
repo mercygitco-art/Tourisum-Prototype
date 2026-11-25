@@ -25,12 +25,16 @@ export function dispatchDestinationSelection(target, name) {
   if (!target?.dispatchEvent) return
 
   const detail = { name }
+  const EventConstructor = target.CustomEvent
   let event
 
-  if (typeof globalThis.CustomEvent === 'function') {
-    event = new globalThis.CustomEvent('ceylon:select-destination', { detail })
+  if (typeof EventConstructor === 'function') {
+    event = new EventConstructor('ceylon:select-destination', { detail })
+  } else if (typeof target.document?.createEvent === 'function') {
+    event = target.document.createEvent('CustomEvent')
+    event.initCustomEvent('ceylon:select-destination', false, false, detail)
   } else {
-    event = { type: 'ceylon:select-destination', detail }
+    throw new Error('Custom events are not supported in this environment.')
   }
 
   target.dispatchEvent(event)
